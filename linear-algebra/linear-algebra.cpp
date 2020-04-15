@@ -11,6 +11,5 @@ using namespace std;
 int main() {
 	Matrix<Rational<int>> a(3, 3);
 	cin >> a;
-	ContainerMathVectors<Rational<int>> mv(a);
-	cout << mv.basis();
+	cout << a.char_poly_slow();
 }

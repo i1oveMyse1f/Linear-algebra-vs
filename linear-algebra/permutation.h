@@ -55,7 +55,7 @@ public:
 		std::vector<bool> used(n);
 		for (size_t i = 0; i < n; i++)
 			if (!used[i]) {
-				for (size_t j = i; !used[j]; j = a[j - 1])
+				for (size_t j = i; !used[j]; j = a[j] - 1)
 					used[j] = true;
 				count_cycles++;
 			}

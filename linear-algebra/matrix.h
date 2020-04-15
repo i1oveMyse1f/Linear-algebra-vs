@@ -15,11 +15,7 @@
 
 // TO-DO list:
 // make beauty print
-// add characterestyc poly
-// add fse
-// add inersect
-// add sum
-// add solve
+// add fast characterestyc poly
 
 template<class T> class ContainerMathVectors;
 
@@ -33,7 +29,8 @@ public:
 	Matrix(const std::vector<std::vector<T>>& a);
 	Matrix(const std::initializer_list<std::vector<T>>& l);
 	Matrix(const ContainerMathVectors<T>& v);
-	Matrix(const Matrix& other);
+	Matrix(const Matrix<T>& other);
+
 	Matrix(Matrix&& other) noexcept;
 
 	// base operations
@@ -59,8 +56,8 @@ public:
 	Matrix operator*(const T coef) const;
 	Matrix operator-();
 
-	Matrix operator+(const T& coef) const { return *this + coef * get_e_matrix(size());	}
-	Matrix operator-(const T& coef) const { return *this - coef * get_e_matrix(size());	}
+	Matrix operator+(const T& coef) const;
+	Matrix operator-(const T& coef) const;
 
 	friend Matrix operator+(const T& coef, const Matrix<T>& other);
 	friend Matrix operator-(const T& coef, const Matrix<T>& other);
@@ -84,18 +81,15 @@ public:
 	bool have_inverce() const;
 	Matrix inverce() const;
 
-	T determintate() const;
-	T determinate_slow() const;
+	T det() const;
+	T det_slow() const;
 
-	/*ContainerMathVectors<T> fse() const {
-		auto tmp = this->to_improved_stepped_view();
-	}
+	ContainerMathVectors<T> fse() const;
 
-	ContainerMathVectors<T> Ker() const {
-		return fse();
-	}*/
+	Polynomial<T> char_poly_slow() const;
 
 	// matrix is a leaner operator
+	ContainerMathVectors<T> Ker() const;
 	ContainerMathVectors<T> Im() const;
 
 	// read and write
@@ -103,8 +97,10 @@ public:
 	//friend std::ostream& operator<<(std::ostream& out, const Matrix<T>& a);
 
 	// matrix E
-	friend Matrix get_e_matrix(std::pair<size_t, size_t> sz);
-	friend Matrix get_e_matrix(size_t n, size_t m);
+	template<class T>
+	friend Matrix<T> get_e_matrix(std::pair<size_t, size_t> sz);
+	template<class T>
+	friend Matrix<T> get_e_matrix(size_t n, size_t m);
 
 	// binary pow
 	friend Matrix pow(Matrix a, size_t deg);
@@ -143,10 +139,10 @@ Matrix<T>::Matrix(const ContainerMathVectors<T>& v) {
 }
 
 template<class T>
-Matrix<T>::Matrix(const Matrix<T>& other): a(other.a) {}
+Matrix<T>::Matrix(Matrix&& other) noexcept { a.swap(other.a), other.a.clear(); }
 
 template<class T>
-Matrix<T>::Matrix(Matrix&& other) noexcept { a.swap(other.a), other.a.clear(); }
+Matrix<T>::Matrix(const Matrix<T>& other) : a(other.a) {}
 
 //base operators
 
@@ -267,10 +263,10 @@ Matrix<T> Matrix<T>::operator-() {
 	return res;
 }
 
-//template<class T>
-//Matrix<T> Matrix<T>::operator+(const T& coef) const { return *this + coef * get_e_matrix(size()); }
-//template<class T>
-//Matrix<T> Matrix<T>::operator-(const T& coef) const { return *this - coef * get_e_matrix(size()); }
+template<class T>
+Matrix<T> Matrix<T>::operator+(const T& coef) const { return *this + coef * get_e_matrix(size()); }
+template<class T>
+Matrix<T> Matrix<T>::operator-(const T& coef) const { return *this - coef * get_e_matrix(size()); }
 
 template<class T>
 Matrix<T> operator+(const T& coef, const Matrix<T>& other) { return other + coef; }
@@ -333,7 +329,7 @@ Matrix<T> Matrix<T>::to_improved_stepped_view() const {
 		for (size_t j = i; j < m; j++)
 			res[i][j] /= coef;
 
-		for (size_t j = 0; j < i; j++) {
+		for (size_t j = 0; j < (size_t)i; j++) {
 			coef = -res[j][i];
 			for (size_t k = i; k < m; k++)
 				res[j][k] += coef * res[i][k];
@@ -358,10 +354,9 @@ Matrix<T> Matrix<T>::inverce() const {
 }
 
 template <class T>
-T Matrix<T>::determintate() const {
+T Matrix<T>::det() const {
 	auto [n, m] = size();
 	assertm(n == m, "Wrong matrix sizes in determinate");
-
 	Matrix stepped = to_stepped_view();
 	T res = 1;
 	for (size_t i = 0; i < n; i++)
@@ -371,22 +366,68 @@ T Matrix<T>::determintate() const {
 
 template <class T>
 bool Matrix<T>::have_inverce() const {
-	return determintate() != 0;
+	return det() != 0;
 }
 
 template <class T>
-T Matrix<T>::determinate_slow() const {
+T Matrix<T>::det_slow() const {
 	auto [n, m] = size();
 	assertm(n == m, "Wrong matrix sizes in slow determinate");
-
-	T res = 0;
+	T res = T(0);
 	Permutation perm(n);
 	do {
-		T cur = perm.sign();
+		T cur = T(perm.sign());
 		for (size_t i = 0; i < n; i++)
 			cur *= a[i][perm[i] - 1];
 		res += cur;
 	} while (perm.next());
+	return res;
+}
+
+template<class T>
+ContainerMathVectors<T> Matrix<T>::fse() const {
+	auto sv = this->to_improved_stepped_view();
+	auto [n, m] = size();
+	std::vector<bool> is_main(m, false);
+	std::vector<size_t> pos_main;
+	for (size_t i = 0, j = 0; i < n; i++) {
+		while (j < m && sv[i][j] == 0)
+			++j;
+		if (j < m) {
+			pos_main.push_back(j);
+			is_main[j++] = true;
+		}
+	}
+	reverse(pos_main.begin(), pos_main.end());
+	
+	ContainerMathVectors<T> res;
+	for (size_t i = 0; i < m; i++)
+		if (!is_main[i]) {
+			MathVector<T> cur(m);
+			cur[i] = 1;
+			size_t i1 = pos_main.size() - 1;
+			for (auto j : pos_main) {
+				T sum = 0;
+				for (size_t k = j + 1; k < m; k++)
+					sum += cur[k] * sv[i1][k];
+				cur[j] = -sum;
+				--i1;
+			}
+			res.push_back(cur);
+		}
+	return res;
+}
+
+template<class T>
+Polynomial<T> Matrix<T>::char_poly_slow() const {
+	auto [n, m] = size();
+	Matrix<Polynomial<Rational<int>>> tmp(n, m);
+	for (size_t i = 0; i < n; i++) {
+		tmp[i][i] = Polynomial<Rational<int>>({ 0, 1 });
+		for (size_t j = 0; j < m; j++)
+			tmp[i][j] -= -a[i][j];
+	}
+	return tmp.det_slow();
 }
 
 // matrix is a leaner operator
@@ -398,7 +439,7 @@ ContainerMathVectors<T> Matrix<T>::Im() const {
 		add[i][0] = i;
 	auto tr = this->transpose();
 	auto tmp = tr | add;
-	std::vector<MathVector<T>> res;
+	ContainerMathVectors<T> res;
 	for (size_t i = 0; i < m; i++) {
 		for (size_t j = i; j < m; j++)
 			if (tmp[j][i] != 0 && (tmp[i][i] == 0 || abs(tmp[j][i]) < abs(tmp[i][i])))
@@ -411,9 +452,14 @@ ContainerMathVectors<T> Matrix<T>::Im() const {
 			for (size_t k = i; k < n; k++)
 				tmp[j][k] += coef * tmp[i][k];
 		}
-		res.emplace_back(tr[i]);
+		res.push_back(tr[i]);
 	}
 	return res;
+}
+
+template<class T>
+ContainerMathVectors<T> Matrix<T>::Ker() const {
+	return this->fse();
 }
 
 //read and write

@@ -6,6 +6,11 @@
 #include "math_vector.h"
 #include "rational.h"
 
+// TO-DO list:
+// add inersect
+// add sum
+// add solve
+
 template<class T> class Matrix;
 
 template<class T = Rational<int>>
@@ -23,6 +28,9 @@ public:
 
 	MathVector<T>& operator[](size_t i);
 	const MathVector<T>& operator[](size_t i) const;
+
+	void push_back(const MathVector<T>& a);
+	void pop_back();
 
 	typename std::vector<MathVector<T>>::iterator begin();
 	typename std::vector<MathVector<T>>::iterator end();
@@ -71,6 +79,11 @@ template<class T>
 const MathVector<T>& ContainerMathVectors<T>::operator[](size_t i) const {
 	return v[i];
 }
+
+template<class T>
+void ContainerMathVectors<T>::push_back(const MathVector<T>& a) { v.push_back(a); }
+template<class T>
+void ContainerMathVectors<T>::pop_back() { v.pop_back(); }
 
 template<class T>
 typename std::vector<MathVector<T>>::iterator ContainerMathVectors<T>::begin() { return v.begin(); }

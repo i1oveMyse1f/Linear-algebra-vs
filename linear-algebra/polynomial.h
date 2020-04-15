@@ -19,8 +19,8 @@ public:
 	Polynomial(const std::vector<T>& a): poly(a) { normalize(); }
 	template <typename N>
 	Polynomial(N beg, N end): poly(beg, end) { normalize();	}
-	Polynomial(const T& a = 0): poly({a}) {}
-	Polynomial(const Polynomial& p): poly(p) {}
+	Polynomial(const T& a = 0): poly({ a }) {}
+	Polynomial(const Polynomial& p): poly(p.poly) {}
 	Polynomial(std::initializer_list<T> l) : poly(l) { normalize(); }
 
 	size_t size() const { return poly.size(); };
@@ -45,7 +45,7 @@ public:
 	Polynomial operator+(const Polynomial& other) const {
 		std::vector<T> p(std::max(size(), other.size()));
 		for (size_t i = 0; i < poly.size() || i < other.size(); ++i)
-			p[i] = poly[i] + other[i];
+			p[i] = this->operator[](i) + other[i];
 		return p;
 	}
 
