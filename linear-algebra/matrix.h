@@ -59,8 +59,11 @@ public:
 	Matrix operator+(const T& coef) const;
 	Matrix operator-(const T& coef) const;
 
+	template<class T>
 	friend Matrix operator+(const T& coef, const Matrix<T>& other);
+	template<class T>
 	friend Matrix operator-(const T& coef, const Matrix<T>& other);
+	template<class T>
 	friend Matrix operator*(const T& coef, const Matrix<T>& other);
 	
 	Matrix& operator+=(const Matrix& other);
@@ -103,6 +106,7 @@ public:
 	friend Matrix<T> get_e_matrix(size_t n, size_t m);
 
 	// binary pow
+	template<class T>
 	friend Matrix pow(Matrix a, size_t deg);
 private:
 	std::vector<std::vector<T>> a;
@@ -356,7 +360,7 @@ Matrix<T> Matrix<T>::inverce() const {
 template <class T>
 T Matrix<T>::det() const {
 	auto [n, m] = size();
-	assertm(n == m, "Wrong matrix sizes in determinate");
+	assertm(n == m, "Wrong matrix sizes in det");
 	Matrix stepped = to_stepped_view();
 	T res = 1;
 	for (size_t i = 0; i < n; i++)
@@ -372,7 +376,7 @@ bool Matrix<T>::have_inverce() const {
 template <class T>
 T Matrix<T>::det_slow() const {
 	auto [n, m] = size();
-	assertm(n == m, "Wrong matrix sizes in slow determinate");
+	assertm(n == m, "Wrong matrix sizes in det_slow");
 	T res = T(0);
 	Permutation perm(n);
 	do {

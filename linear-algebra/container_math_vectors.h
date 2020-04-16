@@ -37,7 +37,8 @@ public:
 	typename std::vector<MathVector<T>>::const_iterator begin() const;
 	typename std::vector<MathVector<T>>::const_iterator end() const;
 
-	//friend std::ostream& operator<<(std::ostream& out, const ContainerMathVectors& cont);
+	template<class T>
+	friend std::ostream& operator<<(std::ostream& out, const ContainerMathVectors& cont);
 };
 
 #include "matrix.h"

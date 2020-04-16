@@ -4,8 +4,23 @@
 #include <initializer_list>
 #include <numeric>
 #include "assertm.h"
+#include "mconcepts.h"
+
+template <conc_gcd T>
+T my_gcd(T x, T y) {
+	while (x != T(0) && y != T(0))
+		if (x > y)
+			x = x % y;
+		else
+			y = y % x;
+	if (x == T(0))
+		return y;
+	else
+		return x;
+}
 
 template<class T = int>
+requires conc_gcd<T>&& conc_read<T>&& conc_write<T>&& conc_comp<T>&& conc_base_math<T>&& requires (T x) { T(1); T(-1); }
 class Rational {
 public:
 	T n, m;
@@ -40,24 +55,25 @@ public:
 		if (delim == '/')
 			in >> a.m;
 		else
-			a.m = 1;
+			a.m = T(1);
+		a.normalize();
 		return in;
 	}
 
 	friend std::ostream& operator<<(std::ostream& out, const Rational& a) {
 		out << a.n;
-		if (a.m != 1)
+		if (a.m != T(1))
 			out << '/' << a.m;
 		return out;
 	}
 private:
 	void normalize() {
-		if (m < 0)
-			n *= -1, m *= -1;
-		int g = std::gcd(n, m);
-		if (g) {
-			n /= g;
-			m /= g;
+		if (m < T(0))
+			n = m * T(-1), m = m * T(-1);
+		T g = my_gcd(n, m);
+		if (g != T(0)) {
+			n = n / g;
+			m = m / g;
 		}
 	}
 };

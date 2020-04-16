@@ -145,6 +145,7 @@
     <ClInclude Include="container_math_vectors.h" />
     <ClInclude Include="math_vector.h" />
     <ClInclude Include="matrix.h" />
+    <ClInclude Include="mconcepts.h" />
     <ClInclude Include="permutation.h" />
     <ClInclude Include="polynomial.h" />
     <ClInclude Include="rational.h" />
