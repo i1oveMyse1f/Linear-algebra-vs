@@ -32,11 +32,8 @@ struct A {
 };
 
 int main() {
-	/*Matrix<Rational<int>> a(3, 3);
+	Matrix<Rational<int>> a(3, 3);
 	cin >> a;
 	ContainerMathVectors tmp(a);
-	cout << tmp;*/
-	Rational<A> x;
-	cin >> x;
-	cout << x;
+	cout << tmp;
 }

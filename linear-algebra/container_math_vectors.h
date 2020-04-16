@@ -14,6 +14,7 @@
 template<class T> class Matrix;
 
 template<class T = Rational<int>>
+requires conc_num<T>
 class ContainerMathVectors {
 private:
 	std::vector<MathVector<T>> v;
