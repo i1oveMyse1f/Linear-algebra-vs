@@ -6,6 +6,7 @@
 #include "assertm.h"
 
 template<class T>
+requires conc_read<T>&& conc_write<T>&& conc_base_math<T>
 class MathVector {
 public:
 	MathVector(size_t n = 0): a(n) {}
@@ -21,7 +22,7 @@ public:
 		assertm(size() == other.size(), "Wrong MathVector sizes in operator+");
 		MathVector res = *this;
 		for (size_t i = 0; i < size(); i++)
-			res[i] += other[i];
+			res[i] = res[i] + other[i];
 		return res;
 	}
 
@@ -29,14 +30,14 @@ public:
 		assertm(size() == other.size(), "Wrong MathVector sizes in operator-");
 		MathVector res = *this;
 		for (size_t i = 0; i < size(); i++)
-			res[i] -= other[i];
+			res[i] = res[i] - other[i];
 		return res;
 	}
 
 	MathVector operator*(const T& coef) {
 		MathVector res = *this;
 		for (size_t i = 0; i < size(); i++)
-			res *= coef;
+			res = res * coef;
 		return res;
 	}
 
@@ -44,7 +45,7 @@ public:
 		assertm(size() == other.size(), "Wrong MathVector sizes in operaor*");
 		T res = 0;
 		for (size_t i = 0; i < size(); i++)
-			res += a[i] * other[i];
+			res = res + a[i] * other[i];
 		return res;
 	}
 
