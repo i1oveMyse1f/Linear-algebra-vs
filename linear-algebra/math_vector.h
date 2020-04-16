@@ -6,7 +6,7 @@
 #include "assertm.h"
 
 template<class T>
-requires conc_read<T>&& conc_write<T>&& conc_base_math<T>
+requires conc_num<T>
 class MathVector {
 public:
 	MathVector(size_t n = 0): a(n) {}
@@ -43,7 +43,7 @@ public:
 
 	T operator*(const MathVector& other) {
 		assertm(size() == other.size(), "Wrong MathVector sizes in operaor*");
-		T res = 0;
+		T res = T(0);
 		for (size_t i = 0; i < size(); i++)
 			res = res + a[i] * other[i];
 		return res;

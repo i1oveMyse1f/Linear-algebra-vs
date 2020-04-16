@@ -17,6 +17,7 @@ template<class T>
 concept conc_gcd = requires (T x, T y) {
 	x% y;
 	T(0);
+	-x;
 	x < y;
 	x == y;
 	x != y;
@@ -39,3 +40,6 @@ concept conc_base_math = requires (T x, T y) {
 	x / y;
 	x * y;
 };
+
+template<class T>
+concept conc_num = conc_gcd<T> && conc_read<T> && conc_write<T> && conc_comp<T> && conc_base_math<T>;

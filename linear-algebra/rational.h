@@ -20,7 +20,7 @@ T my_gcd(T x, T y) {
 }
 
 template<class T = int>
-requires conc_gcd<T>&& conc_read<T>&& conc_write<T>&& conc_comp<T>&& conc_base_math<T>&& requires (T x) { T(1); T(-1); }
+requires conc_num<T> && requires (T x) { T(1); T(-1); }
 class Rational {
 public:
 	T n, m;
